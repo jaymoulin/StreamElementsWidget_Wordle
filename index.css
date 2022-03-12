@@ -56,3 +56,31 @@ h1 {
     cursor: pointer;
     text-transform: uppercase;
 }
+
+.toast-leaderboard {
+    font-size: 3rem;
+    font-weight: 350;
+    background: #b1fcb1 !important;
+    color: black !important;
+    padding: 3.5rem
+}
+
+.toast-error {
+    font-size: 3rem;
+    background: #F3C2C3 !important;
+}
+
+.toast-leaderboard h1 {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.toast-leaderboard li:nth-child(1)::before {
+    content: '🥇';
+}
+.toast-leaderboard li:nth-child(2)::before {
+    content: '🥈';
+}
+.toast-leaderboard li:nth-child(3)::before {
+    content: '🥉';
+}

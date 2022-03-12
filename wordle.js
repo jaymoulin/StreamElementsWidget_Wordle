@@ -60,7 +60,7 @@ class Wordle {
         .then(_ => {
             let row = document.getElementsByClassName("letter-row")[this.settings.numberOfGuesses - this.guessesRemaining]
             let rightGuess = Array.from(this.rightGuessString)
-            
+            let promises = []
             for (let i = 0; i < 5; i++) {
                 let letterColor = ''
                 let box = row.children[i]
@@ -79,18 +79,23 @@ class Wordle {
                 }
         
                 let delay = 150 * i
-                setTimeout(
-                    function () {
-                        //flip box
-                        this.animateCSS(box, 'flipInX')
-                        //shade box
-                        box.style.backgroundColor = letterColor
-                        this.shadeKeyBoard(letter, letterColor)
-                    }.bind(this),
-                    delay
-                )
+                promises.push(new Promise((resolve) => {
+                    setTimeout(
+                        function () {
+                            //flip box
+                            this.animateCSS(box, 'flipInX')
+                            //shade box
+                            box.style.backgroundColor = letterColor
+                            this.shadeKeyBoard(letter, letterColor)
+                            resolve()
+                        }.bind(this),
+                        delay
+                    )
+                }))
             }
-        
+            return Promise.all(promises)
+        })
+        .then(_ => {
             if (guess === this.rightGuessString) {
                 this.fire('success', {message: "You guessed right! Game over!", tries: this.settings.numberOfGuesses - this.guessesRemaining, winner: player})
                 this.guessesRemaining = 0
@@ -129,7 +134,7 @@ class Wordle {
         let nextLetter = 0
         for (let i = 0; i < word.length; i++) {
             const letter = word[i].toLowerCase()
-            let delay = 150 * i
+            let delay = 50 * i
             promises.push(
                 new Promise((resolve, _) => {
                     setTimeout(
