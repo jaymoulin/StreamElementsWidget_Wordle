@@ -1,0 +1,12 @@
+{
+  "name": "pointsoverlay",
+  "version": "1.0.1",
+  "description": "Twitch Channel Points Overlay",
+  "main": "index.js",
+  "repository": "https://github.com/jaymoulin/StreamElementsWidget/ChannelPointRedeemer/",
+  "author": "Jay MOULIN",
+  "license": "MIT",
+  "dependencies": {
+    "unorm": "^1.6.0"
+  }
+}
