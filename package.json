@@ -1,6 +1,6 @@
 {
   "name": "wordle",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "Wordle game StreamElements module",
   "main": "index.js",
   "repository": "https://github.com/jaymoulin/StreamElementsWidget/ChannelPointRedeemer/",

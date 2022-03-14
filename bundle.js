@@ -533,6 +533,7 @@ class Wordle {
     
     initBoard(numberOfGuesses) {
         this.guessesRemaining = numberOfGuesses
+        this.proposed = []
         this.rightGuessString = this.removeAccents(WORDS[Math.floor(Math.random() * WORDS.length)])
         console.log(`Wordle answer : ${this.rightGuessString}`)
 
@@ -574,14 +575,17 @@ class Wordle {
     
     async checkGuess(guess, player) {
         if (this.guessesRemaining <= 0) return
+        
         guess = this.removeAccents(guess)
         
-        let currentGuess = Array.from(this.removeAccents(guess))
-        
-        if (guess.length != 5) return this.fire('error', {message: `"${guess}" has not enough letters`})
-        if (!WORDS.map(this.removeAccents).includes(guess)) return this.fire('error', {message: `"${guess}" is not in list!`})
+        if (guess.length != 5) return this.fire('error', {message: `"${guess}" n'a pas 5 lettres`})
+        if (!WORDS.map(this.removeAccents).includes(guess)) return this.fire('error', {message: `"${guess}" n'est pas dans la liste`})
+        if (this.proposed.includes(guess)) return this.fire('error', {message: `"${guess}" à déjà été proposé`})
+
+        this.proposed.push(guess)
+        let currentGuess = Array.from(guess)
             
-        await this.animateWrite(currentGuess)
+        return await this.animateWrite(currentGuess)
         .then(_ => {
             let row = document.getElementsByClassName("letter-row")[this.settings.numberOfGuesses - this.guessesRemaining]
             let rightGuess = Array.from(this.rightGuessString)
