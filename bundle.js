@@ -44,9 +44,16 @@ window.addEventListener('onWidgetLoad', (obj) => {
         leaderboard[event.detail.winner] = leaderboard[event.detail.winner] ? leaderboard[event.detail.winner] : 0
         leaderboard[event.detail.winner] += (numberOfGuesses - event.detail.tries)
         displayLeaderboard(event.detail.winner)
+        Toastify({
+            text: `Bravo 🏆 ${event.detail.winner}, le mot était '${instance.rightGuessString}'`,
+            duration: timeRelaunchInSec * 1000,
+            newWindow: true,
+            className: "toast-leaderboard",
+            gravity: "top", // `top` or `bottom`
+            position: "center" // `left`, `center` or `right`
+        }).showToast()
     })
     instance.getEventDispatcher().addEventListener('failure', event => {
-        setTimeout(() => init(), timeRelaunchInSec * 1000)
         displayLeaderboard()
         Toastify({
             text: event.detail.message,
