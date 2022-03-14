@@ -1,5 +1,6 @@
 const Wordle = require("./wordle")
 const Toastify = require("toastify-js")
+const GoogleTTS = require('./tts')
 
 const numberOfGuesses = 6
 const timeRelaunchInSec = 10
@@ -65,7 +66,7 @@ window.addEventListener('onWidgetLoad', (obj) => {
     })
 })
 
-window.addEventListener('onEventReceived', (obj) => {
+window.addEventListener('onEventReceived', async (obj) => {
    if (obj.detail.listener !== "message") return
    let data = obj.detail.event.data
    const player = data["displayName"].toLowerCase()
@@ -76,6 +77,7 @@ window.addEventListener('onEventReceived', (obj) => {
    if (message === '!reset' && player === channelName) instance.initBoard(numberOfGuesses)
    if (message.length != 5) return //no need to check if the word is not 5 letter
    if (message.includes(' ')) return //no need to check if contains space
-   instance.checkGuess(message, player)
+   GoogleTTS.textToSpeech(instance.rightGuessString, 'fr')
+   await instance.checkGuess(message, player)
 })
 

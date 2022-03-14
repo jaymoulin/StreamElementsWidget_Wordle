@@ -3,6 +3,7 @@ module.exports = ["abats", "abbés", "abcès", "aboie", "abois", "aboli", "abord
 },{}],2:[function(require,module,exports){
 const Wordle = require("./wordle")
 const Toastify = require("toastify-js")
+const GoogleTTS = require('./tts')
 
 const numberOfGuesses = 6
 const timeRelaunchInSec = 10
@@ -68,7 +69,7 @@ window.addEventListener('onWidgetLoad', (obj) => {
     })
 })
 
-window.addEventListener('onEventReceived', (obj) => {
+window.addEventListener('onEventReceived', async (obj) => {
    if (obj.detail.listener !== "message") return
    let data = obj.detail.event.data
    const player = data["displayName"].toLowerCase()
@@ -79,11 +80,12 @@ window.addEventListener('onEventReceived', (obj) => {
    if (message === '!reset' && player === channelName) instance.initBoard(numberOfGuesses)
    if (message.length != 5) return //no need to check if the word is not 5 letter
    if (message.includes(' ')) return //no need to check if contains space
-   instance.checkGuess(message, player)
+   GoogleTTS.textToSpeech(instance.rightGuessString, 'fr')
+   await instance.checkGuess(message, player)
 })
 
 
-},{"./wordle":4,"toastify-js":3}],3:[function(require,module,exports){
+},{"./tts":4,"./wordle":5,"toastify-js":3}],3:[function(require,module,exports){
 /*!
  * Toastify js 1.11.2
  * https://github.com/apvarun/toastify-js
@@ -523,6 +525,65 @@ window.addEventListener('onEventReceived', (obj) => {
 });
 
 },{}],4:[function(require,module,exports){
+const TTS = {
+    async playAudios(audioUrls) {
+        let audios = [];
+        for (let url of audioUrls) {
+            audios.push(new Audio(url));
+        }
+        for (let audio of audios) {
+            await new Promise((resolve, reject) => {
+                audio.onerror = reject;
+                audio.onended = resolve;
+                audio.play();
+            });
+            audio.remove();
+        }
+    },
+    splitSentence(text) {
+        let words = text.split(" ");
+        let result = [];
+        let current = "";
+        let i = 0;
+        while (words.length > -1) {
+            let word = words[0];
+            if (!word) {
+                result.push(current);
+                current = "";
+                break;
+            }
+            if (current.length + word.length <= 199) {
+                current += word + " ";
+                words.shift();
+            } else if (current.length > 0) {
+                result.push(current);
+                current = "";
+            } else {
+                current = word.substring(0, 198);
+                result.push(current);
+                current = "";
+                words.shift();
+                words.unshift(word.substring(198, word.length - 1));
+            }
+        }
+        return result;
+    },
+    async textToSpeech(text, language) {
+        let parts = this.splitSentence(text);
+        let urls = [];
+        for (let part of parts) {
+            urls.push(this.getTTSUrl(part, language));
+        }
+        await this.playAudios(urls)
+    },
+    getTTSUrl(text, language) {
+        return `https://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=${text.length}&client=tw-ob&q=${text}&tl=${language}`
+    }
+}
+
+module.exports = TTS
+
+},{}],5:[function(require,module,exports){
 const WORDS = require("./dico/fr")
 
 class Wordle {
