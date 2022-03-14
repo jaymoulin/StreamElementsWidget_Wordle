@@ -71,9 +71,9 @@ window.addEventListener('onEventReceived', (obj) => {
    const player = data["displayName"].toLowerCase()
    if (player == "streamelements") return
    
-   let message = data["text"]
+   let message = data["text"].toLowerCase()
    //channel author can reset
-   if (message.toLowerCase() === '!reset' && player === channelName) instance.initBoard(numberOfGuesses)
+   if (message === '!reset' && player === channelName) instance.initBoard(numberOfGuesses)
    if (message.length != 5) return //no need to check if the word is not 5 letter
    if (message.includes(' ')) return //no need to check if contains space
    instance.checkGuess(message, player)
