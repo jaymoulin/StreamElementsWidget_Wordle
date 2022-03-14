@@ -1,13 +1,12 @@
 {
-  "name": "pointsoverlay",
-  "version": "1.0.1",
-  "description": "Twitch Channel Points Overlay",
+  "name": "wordle",
+  "version": "1.0.2",
+  "description": "Wordle game StreamElements module",
   "main": "index.js",
   "repository": "https://github.com/jaymoulin/StreamElementsWidget/ChannelPointRedeemer/",
   "author": "Jay MOULIN",
   "license": "MIT",
   "dependencies": {
-    "toastify-js": "^1.11.2",
-    "unorm": "^1.6.0"
+    "toastify-js": "^1.11.2"
   }
 }
