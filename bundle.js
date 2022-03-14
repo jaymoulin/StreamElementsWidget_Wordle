@@ -33,7 +33,7 @@ function displayLeaderboard(winner) {
         escapeMarkup: false,
         gravity: "top", // `top` or `bottom`
         position: "center", // `left`, `center` or `right`
-        callback: () => instance.initBoard(numberOfGuesses)
+        callback: () => init()
     }).showToast()
 }
 
@@ -46,7 +46,7 @@ window.addEventListener('onWidgetLoad', (obj) => {
         displayLeaderboard(event.detail.winner)
     })
     instance.getEventDispatcher().addEventListener('failure', event => {
-        setTimeout(() => instance.initBoard(numberOfGuesses), timeRelaunchInSec * 1000)
+        setTimeout(() => init(), timeRelaunchInSec * 1000)
         displayLeaderboard()
         Toastify({
             text: event.detail.message,
@@ -77,14 +77,16 @@ window.addEventListener('onEventReceived', async (obj) => {
    
    let message = data["text"].toLowerCase()
    //channel author can reset
-   if (message === '!reset' && player === channelName) instance.initBoard(numberOfGuesses)
+   if (message === '!reset' && player === channelName) init()
    if (message.length != 5) return //no need to check if the word is not 5 letter
    if (message.includes(' ')) return //no need to check if contains space
-   GoogleTTS.textToSpeech(instance.rightGuessString, 'fr')
    await instance.checkGuess(message, player)
 })
 
-
+function init() {
+    instance.initBoard(numberOfGuesses)
+    GoogleTTS.textToSpeech(instance.rightGuessString, 'fr')
+}
 },{"./tts":4,"./wordle":5,"toastify-js":3}],3:[function(require,module,exports){
 /*!
  * Toastify js 1.11.2
