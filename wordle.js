@@ -97,13 +97,13 @@ class Wordle {
         })
         .then(_ => {
             if (guess === this.rightGuessString) {
-                this.fire('success', {message: "You guessed right! Game over!", tries: this.settings.numberOfGuesses - this.guessesRemaining, winner: player})
+                this.fire('success', {message: "Felicitations!", tries: this.settings.numberOfGuesses - this.guessesRemaining, winner: player})
                 this.guessesRemaining = 0
                 return this
             } else {
                 this.guessesRemaining--
                 if (this.guessesRemaining === 0) {
-                    this.fire('failure', {message: `You've run out of guesses! Game over!\nThe right word was: "${this.rightGuessString}"`})
+                    this.fire('failure', {message: `Perdu!\nLe mot etait: "${this.rightGuessString}"`})
                 }
             }
         })

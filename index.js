@@ -42,16 +42,16 @@ window.addEventListener('onWidgetLoad', (obj) => {
         displayLeaderboard(event.detail.winner)
     })
     instance.getEventDispatcher().addEventListener('failure', event => {
+        setTimeout(() => instance.initBoard(numberOfGuesses), timeRelaunchInSec * 1000)
+        displayLeaderboard()
         Toastify({
             text: event.detail.message,
-            duration: 2 * 1000,
+            duration: timeRelaunchInSec * 1000,
             newWindow: true,
             className: "toast-error",
             gravity: "top", // `top` or `bottom`
             position: "center" // `left`, `center` or `right`
         }).showToast()
-        setTimeout(() => instance.initBoard(numberOfGuesses), timeRelaunchInSec * 1000)
-        displayLeaderboard()
     })
     instance.getEventDispatcher().addEventListener('error', event => {
         Toastify({
