@@ -78,6 +78,7 @@ window.addEventListener('onEventReceived', (obj) => {
    //channel author can reset
    if (message.toLowerCase() === '!reset' && player === channelName) instance.initBoard(numberOfGuesses)
    if (message.length != 5) return //no need to check if the word is not 5 letter
+   if (message.includes(' ')) return //no need to check if contains space
    instance.checkGuess(message, player)
 })
 
