@@ -80,8 +80,10 @@ window.addEventListener('onEventReceived', async (obj) => {
    if (player == "streamelements") return
    
    let message = data["text"].toLowerCase()
-   //channel author can reset
-   if (message === '!reset' && player === channelName) init()
+   //channel author can pass the word
+   if (message === '!next' && player === channelName) init()
+   //channel author can reset leaderboard
+   if (message === '!reset' && player === channelName) leaderboard = {}
    if (message.length != 5) return //no need to check if the word is not 5 letter
    if (message.includes(' ')) return //no need to check if contains space
    await instance.checkGuess(message, player)
