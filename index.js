@@ -15,9 +15,9 @@ function displayLeaderboard(winner) {
         })
         .sort((a, b) => b.score - a.score)
         .map((entry) => `<li><strong>${entry.player}</strong> : ${entry.score} points</li>`)
-        .slice(0, 10)
+        .slice(0, 5)
         .toString()
-        .replace(',', '')
+        .replaceAll(',', '')
 
     let leaderText = `<h1>🏆 LEADERBOARD</h1><ol>${list}</ol><p>⏱️ Prochain mot dans 10s...</p>`
 
