@@ -3,9 +3,13 @@ const Toastify = require("toastify-js")
 const GoogleTTS = require('./tts')
 
 const numberOfGuesses = 6
+const numberOfLetter = parseInt("{{numberOfLetter}}") || 5
 const timeRelaunchInSec = 10
+const dico = "{{dico}}".split(',').map(word => word.trim().trim())
 
 let instance = null
+let currentNumberOfLetter = numberOfLetter
+let currentNumberOfGuesses = numberOfGuesses
 let leaderboard = {}
 let channelName = ''
 
@@ -35,7 +39,7 @@ function displayLeaderboard(winner) {
 }
 
 window.addEventListener('onWidgetLoad', (obj) => {
-    instance = new Wordle({numberOfGuesses: numberOfGuesses})
+    instance = new Wordle({numberOfGuesses: numberOfGuesses, numberOfLetter: numberOfLetter, dico: dico})
     channelName = obj.detail.channel.username.toLowerCase()
     instance.getEventDispatcher().addEventListener('success', event => {
         leaderboard[event.detail.winner] = leaderboard[event.detail.winner] ? leaderboard[event.detail.winner] : 0
@@ -81,15 +85,16 @@ window.addEventListener('onEventReceived', async (obj) => {
    
    let message = data["text"].toLowerCase()
    //channel author can pass the word
-   if (message === '!next' && player === channelName) init()
+   if (message === '!wordle_next' && player === channelName) return init()
    //channel author can reset leaderboard
-   if (message === '!reset' && player === channelName) leaderboard = {}
-   if (message.length != 5) return //no need to check if the word is not 5 letter
+   if (message === '!wordle_reset' && player === channelName) return leaderboard = {}
+   if (message.match(/^\!wordle_guess[0-9]+$/g) && player === channelName) return currentNumberOfGuesses = parseInt(message.replace('!wordle_guess', ''))
+   if (message.length != currentNumberOfLetter) return //no need to check if the word is not the correct number of letter
    if (message.includes(' ')) return //no need to check if contains space
    await instance.checkGuess(message, player)
 })
 
 function init() {
-    instance.initBoard(numberOfGuesses)
+    instance.initBoard({numberOfGuesses: currentNumberOfGuesses, numberOfLetter: currentNumberOfLetter})
     GoogleTTS.textToSpeech(instance.rightGuessString, 'fr')
 }

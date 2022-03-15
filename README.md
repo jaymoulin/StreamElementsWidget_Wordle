@@ -13,5 +13,18 @@ Allows to play to wordle in a single Stream Elements module
 1. Paste `index.html` content in HTML code
 1. Paste `index.css` content in CSS code
 1. Paste `index.json` content in fields code
+1. Paste `data.json` content in data code (this is a 5 words french dictionary but you can use your own)
 1. Compile `index.js` into `bundle.js` with browserify (just do `make build` if docker and makefile are both installed)
 1. Paste `bundle.js` content in JS code
+
+# Commands
+
+As a streamer, you can use the following commands:
+
+* `!wordle_reset` : Reset leaderboard
+* `!wordle_next` : Pass to the next word
+* `!wordle_guess[0-9]+` : Change to a specified number of guess (default 6) (example: !wordle_guess3)
+
+# Compile a dictionary
+
+TODO

@@ -1,26 +1,27 @@
-const WORDS = require("./dico/fr")
-
 class Wordle {
     constructor(settings) {
-        this.settings = Object.assign({numberOfGuesses: 6}, settings)
-        this.initBoard(this.settings.numberOfGuesses)
+        this.settings = Object.assign({numberOfGuesses: 6, numberOfLetters: 5, dico:[]}, settings)
+        this.initBoard(this.settings)
     }
     
-    initBoard(numberOfGuesses) {
-        this.guessesRemaining = numberOfGuesses
+    initBoard(settings) {
+        this.guessesRemaining = settings.numberOfGuesses || this.settings.numberOfGuesses || 6
+        this.numberOfLetters = settings.numberOfLetters || this.settings.numberOfLetters || 5
+        this.dico = settings.dico || this.settings.dico || []
         this.proposed = []
-        this.rightGuessString = this.removeAccents(WORDS[Math.floor(Math.random() * WORDS.length)])
+        this.wordList = this.dico.filter((word) => word.length === this.numberOfLetters)
+        this.rightGuessString = this.removeAccents(this.wordList[Math.floor(Math.random() * this.wordList.length)])
         console.log(`Wordle answer : ${this.rightGuessString}`)
 
         this.initKeyBoard()
         let board = document.getElementById("game-board")
         board.innerHTML = ''
     
-        for (let i = 0; i < this.settings.numberOfGuesses; i++) {
+        for (let i = 0; i < this.guessesRemaining; i++) {
             let row = document.createElement("div")
             row.className = "letter-row"
             
-            for (let j = 0; j < 5; j++) {
+            for (let j = 0; j < this.numberOfLetters; j++) {
                 let box = document.createElement("div")
                 box.className = "letter-box"
                 row.appendChild(box)
@@ -53,8 +54,8 @@ class Wordle {
         
         guess = this.removeAccents(guess)
         
-        if (guess.length != 5) return this.fire('error', {message: `"${guess}" n'a pas 5 lettres`})
-        if (!WORDS.map(this.removeAccents).includes(guess)) return this.fire('error', {message: `"${guess}" n'est pas dans la liste`})
+        if (guess.length != this.numberOfLetters) return this.fire('error', {message: `"${guess}" n'a pas ${this.numberOfLetters} lettres`})
+        if (!this.wordList.map(this.removeAccents).includes(guess)) return this.fire('error', {message: `"${guess}" n'est pas dans la liste`})
         if (this.proposed.includes(guess)) return this.fire('error', {message: `"${guess}" à déjà été proposé`})
 
         this.proposed.push(guess)
@@ -65,7 +66,7 @@ class Wordle {
             let row = document.getElementsByClassName("letter-row")[this.settings.numberOfGuesses - this.guessesRemaining]
             let rightGuess = Array.from(this.rightGuessString)
             let promises = []
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < this.numberOfLetters; i++) {
                 let letterColor = ''
                 let box = row.children[i]
                 let letter = currentGuess[i]
