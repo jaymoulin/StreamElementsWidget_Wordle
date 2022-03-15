@@ -23,6 +23,7 @@ As a streamer, you can use the following commands:
 
 * `!wordle_reset` : Reset leaderboard
 * `!wordle_next` : Pass to the next word
+* `!wordle_say` : Say the correct word
 * `!wordle_guess[0-9]+` : Change to a specified number of guess (default 6) (example: !wordle_guess3)
 
 # Compile a dictionary

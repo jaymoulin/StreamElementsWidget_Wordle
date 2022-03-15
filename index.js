@@ -77,7 +77,7 @@ window.addEventListener('onWidgetLoad', (obj) => {
     })
 })
 
-window.addEventListener('onEventReceived', async (obj) => {
+window.addEventListener('onEventReceived', (obj) => {
    if (obj.detail.listener !== "message") return
    let data = obj.detail.event.data
    const player = data["displayName"].toLowerCase()
@@ -88,13 +88,18 @@ window.addEventListener('onEventReceived', async (obj) => {
    if (message === '!wordle_next' && player === channelName) return init()
    //channel author can reset leaderboard
    if (message === '!wordle_reset' && player === channelName) return leaderboard = {}
+   if (message === '!wordle_say' && player === channelName) return say()
    if (message.match(/^\!wordle_guess[0-9]+$/g) && player === channelName) return currentNumberOfGuesses = parseInt(message.replace('!wordle_guess', ''))
    if (message.length != currentNumberOfLetter) return //no need to check if the word is not the correct number of letter
    if (message.includes(' ')) return //no need to check if contains space
-   await instance.checkGuess(message, player)
+   instance.checkGuess(message, player)
 })
 
-function init() {
+const init = () => {
     instance.initBoard({numberOfGuesses: currentNumberOfGuesses, numberOfLetter: currentNumberOfLetter})
+    say()
+}
+
+const say = () => {
     GoogleTTS.textToSpeech(instance.rightGuessString, 'fr')
 }
