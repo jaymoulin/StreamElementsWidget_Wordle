@@ -6,7 +6,8 @@ const GoogleTTS = require('./tts')
 const numberOfGuesses = 6
 const numberOfLetter = parseInt("{{numberOfLetter}}") || 5
 const timeRelaunchInSec = 10
-const dico = "{{dico}}".split(',').map(word => word.trim().trim())
+let locale = 'fr'
+let dico = {}
 
 let instance = null
 let currentNumberOfLetter = numberOfLetter
@@ -39,46 +40,49 @@ function displayLeaderboard(winner) {
     }).showToast()
 }
 
-window.addEventListener('onWidgetLoad', (obj) => {
-    instance = new Wordle({numberOfGuesses: numberOfGuesses, numberOfLetter: numberOfLetter, dico: dico})
-    channelName = obj.detail.channel.username.toLowerCase()
-    instance.getEventDispatcher().addEventListener('success', event => {
-        leaderboard[event.detail.winner] = leaderboard[event.detail.winner] ? leaderboard[event.detail.winner] : 0
-        leaderboard[event.detail.winner] += (numberOfGuesses - event.detail.tries)
-        displayLeaderboard(event.detail.winner)
-        Toastify({
-            text: `Bravo 🏆 ${event.detail.winner}, le mot était '${instance.rightGuessString}'`,
-            duration: timeRelaunchInSec * 1000,
-            newWindow: true,
-            className: "toast-leaderboard",
-            gravity: "top", // `top` or `bottom`
-            position: "center" // `left`, `center` or `right`
-        }).showToast()
-    })
-    instance.getEventDispatcher().addEventListener('failure', event => {
-        displayLeaderboard()
-        Toastify({
-            text: event.detail.message,
-            duration: timeRelaunchInSec * 1000,
-            newWindow: true,
-            className: "toast-error",
-            gravity: "top", // `top` or `bottom`
-            position: "center" // `left`, `center` or `right`
-        }).showToast()
-    })
-    instance.getEventDispatcher().addEventListener('error', event => {
-        Toastify({
-            text: event.detail.message,
-            duration: 2 * 1000,
-            newWindow: true,
-            className: "toast-error",
-            gravity: "top", // `top` or `bottom`
-            position: "center" // `left`, `center` or `right`
-        }).showToast()
+window.addEventListener('onWidgetLoad', async (obj) => {
+    loadLocale()
+    .then(_ => {
+        instance = new Wordle({numberOfGuesses: numberOfGuesses, numberOfLetter: numberOfLetter, dico: dico[locale]})
+        channelName = obj.detail.channel.username.toLowerCase()
+        instance.getEventDispatcher().addEventListener('success', event => {
+            leaderboard[event.detail.winner] = leaderboard[event.detail.winner] ? leaderboard[event.detail.winner] : 0
+            leaderboard[event.detail.winner] += (numberOfGuesses - event.detail.tries)
+            displayLeaderboard(event.detail.winner)
+            Toastify({
+                text: `Bravo 🏆 ${event.detail.winner}, le mot était '${instance.rightGuessString}'`,
+                duration: timeRelaunchInSec * 1000,
+                newWindow: true,
+                className: "toast-leaderboard",
+                gravity: "top", // `top` or `bottom`
+                position: "center" // `left`, `center` or `right`
+            }).showToast()
+        })
+        instance.getEventDispatcher().addEventListener('failure', event => {
+            displayLeaderboard()
+            Toastify({
+                text: event.detail.message,
+                duration: timeRelaunchInSec * 1000,
+                newWindow: true,
+                className: "toast-error",
+                gravity: "top", // `top` or `bottom`
+                position: "center" // `left`, `center` or `right`
+            }).showToast()
+        })
+        instance.getEventDispatcher().addEventListener('error', event => {
+            Toastify({
+                text: event.detail.message,
+                duration: 2 * 1000,
+                newWindow: true,
+                className: "toast-error",
+                gravity: "top", // `top` or `bottom`
+                position: "center" // `left`, `center` or `right`
+            }).showToast()
+        })
     })
 })
 
-window.addEventListener('onEventReceived', async (obj) => {
+window.addEventListener('onEventReceived', (obj) => {
    if (obj.detail.listener !== "message") return
    let data = obj.detail.event.data
    const player = data["displayName"].toLowerCase()
@@ -89,15 +93,48 @@ window.addEventListener('onEventReceived', async (obj) => {
    if (message === '!wordle_next' && player === channelName) return init()
    //channel author can reset leaderboard
    if (message === '!wordle_reset' && player === channelName) return leaderboard = {}
+   if (message === '!wordle_say' && player === channelName) return say()
+   if (message.match(/^\!wordle_locale[a-z]{2}$/g) && player === channelName) return locale = message.replace('!wordle_locale', '')
    if (message.match(/^\!wordle_guess[0-9]+$/g) && player === channelName) return currentNumberOfGuesses = parseInt(message.replace('!wordle_guess', ''))
    if (message.length != currentNumberOfLetter) return //no need to check if the word is not the correct number of letter
    if (message.includes(' ')) return //no need to check if contains space
-   await instance.checkGuess(message, player)
+   instance.checkGuess(message, player)
 })
 
-function init() {
-    instance.initBoard({numberOfGuesses: currentNumberOfGuesses, numberOfLetter: currentNumberOfLetter})
-    GoogleTTS.textToSpeech(instance.rightGuessString, 'fr')
+const init = () => {
+    loadLocale()
+    .then(_ => {
+        console.log(locale)
+        console.log(dico.keys())
+        instance.initBoard({numberOfGuesses: currentNumberOfGuesses, numberOfLetter: currentNumberOfLetter, dico: dico[locale]})
+        say()
+    })
+}
+
+const say = () => {
+    GoogleTTS.textToSpeech(instance.rightGuessString, locale)
+}
+
+const loadLocale = async () => {
+    let url = 'https://raw.githubusercontent.com/words/an-array-of-french-words/master/index.json'
+    if (dico[locale]) return
+    switch (locale) {
+        case 'fr':
+            url = 'https://raw.githubusercontent.com/words/an-array-of-french-words/master/index.json'
+            break
+        case 'en':
+            url = 'https://raw.githubusercontent.com/words/an-array-of-english-words/master/index.json'
+            break
+        case 'es':
+            url = 'https://raw.githubusercontent.com/words/an-array-of-spanish-words/master/index.json'
+            break
+        case 'de':
+            url = 'https://raw.githubusercontent.com/creativecouple/all-the-german-words/master/woerter.json'
+            break
+    }    
+    return fetch(url)
+        .then((response) => response.json())
+        .then((json) => dico[locale] = json)
 }
 },{"./tts":3,"./wordle":4,"toastify-js":2}],2:[function(require,module,exports){
 /*!
