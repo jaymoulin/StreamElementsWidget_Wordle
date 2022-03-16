@@ -3,11 +3,11 @@ const Toastify = require("toastify-js")
 const GoogleTTS = require('./tts')
 
 const timeRelaunchInSec = 10
-let locale = 'fr'
+let locale = "{{locale}}" || 'fr'
 let dico = {}
 
 let instance = null
-let numberOfLetter = parseInt("{{numberOfLetter}}") || 5
+let numberOfLetters = parseInt("{{numberOfLetters}}") || 5
 let numberOfGuesses = 6
 let leaderboard = {}
 let channelName = ''
@@ -42,7 +42,7 @@ function displayLeaderboard(relaunch = true, specificTimeInSec = 0) {
 window.addEventListener('onWidgetLoad', async (obj) => {
     loadLocale()
     .then(_ => {
-        instance = new Wordle({numberOfGuesses: numberOfGuesses, numberOfLetter: numberOfLetter, dico: dico[locale]})
+        instance = new Wordle({numberOfGuesses: numberOfGuesses, numberOfLetters: numberOfLetters, dico: dico[locale]})
         channelName = obj.detail.channel.username.toLowerCase()
         instance.getEventDispatcher().addEventListener('success', event => {
             leaderboard[event.detail.winner] = leaderboard[event.detail.winner] ? leaderboard[event.detail.winner] : 0
@@ -102,8 +102,8 @@ window.addEventListener('onEventReceived', (obj) => {
    //channel author can change the number of guesses
    if (message.match(/^\!wordle_guess_[0-9]+$/g) && player === channelName) return numberOfGuesses = parseInt(message.replace('!wordle_guess_', ''))
    //channel author can change the number of letter
-   if (message.match(/^\!wordle_letter_[0-9]+$/g) && player === channelName) return numberOfLetter = parseInt(message.replace('!wordle_letter_', ''))
-   if (message.length != numberOfLetter) return //no need to check if the word is not the correct number of letter
+   if (message.match(/^\!wordle_letter_[0-9]+$/g) && player === channelName) return numberOfLetters = parseInt(message.replace('!wordle_letter_', ''))
+   if (message.length != numberOfLetters) return //no need to check if the word is not the correct number of letter
    if (message.includes(' ')) return //no need to check if contains space
    guessList.push({message: message, player: player})
 })
@@ -111,7 +111,7 @@ window.addEventListener('onEventReceived', (obj) => {
 const init = () => {
     loadLocale()
     .then(_ => {
-        instance.initBoard({numberOfGuesses: numberOfGuesses, numberOfLetter: numberOfLetter, dico: dico[locale]})
+        instance.initBoard({numberOfGuesses: numberOfGuesses, numberOfLetters: numberOfLetters, dico: dico[locale]})
         say()
     })
 }
