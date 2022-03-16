@@ -3,7 +3,7 @@
   "version": "1.6.1",
   "description": "Wordle game StreamElements module",
   "main": "index.js",
-  "repository": "https://github.com/jaymoulin/StreamElementsWidget/ChannelPointRedeemer/",
+  "repository": "https://github.com/jaymoulin/StreamElementsWidget_Wordle/",
   "author": "Jay MOULIN",
   "license": "MIT",
   "dependencies": {
