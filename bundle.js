@@ -3,17 +3,16 @@ const Wordle = require("./wordle")
 const Toastify = require("toastify-js")
 const GoogleTTS = require('./tts')
 
-const numberOfGuesses = 6
-const numberOfLetter = parseInt("{{numberOfLetter}}") || 5
 const timeRelaunchInSec = 10
 let locale = 'fr'
 let dico = {}
 
 let instance = null
-let currentNumberOfLetter = numberOfLetter
-let currentNumberOfGuesses = numberOfGuesses
+let numberOfLetter = parseInt("{{numberOfLetter}}") || 5
+let numberOfGuesses = 6
 let leaderboard = {}
 let channelName = ''
+let guessList = []
 
 function displayLeaderboard(winner) {
     let list = Object.entries(leaderboard)
@@ -79,6 +78,7 @@ window.addEventListener('onWidgetLoad', async (obj) => {
                 position: "center" // `left`, `center` or `right`
             }).showToast()
         })
+        setTimeout(checkGuess, 10)
     })
 })
 
@@ -93,20 +93,21 @@ window.addEventListener('onEventReceived', (obj) => {
    if (message === '!wordle_next' && player === channelName) return init()
    //channel author can reset leaderboard
    if (message === '!wordle_reset' && player === channelName) return leaderboard = {}
+   //channel author can ear the word with this command
    if (message === '!wordle_say' && player === channelName) return say()
-   if (message.match(/^\!wordle_locale[a-z]{2}$/g) && player === channelName) return locale = message.replace('!wordle_locale', '')
-   if (message.match(/^\!wordle_guess[0-9]+$/g) && player === channelName) return currentNumberOfGuesses = parseInt(message.replace('!wordle_guess', ''))
-   if (message.length != currentNumberOfLetter) return //no need to check if the word is not the correct number of letter
+   //channel author can change the current locale
+   if (message.match(/^\!wordle_locale_[a-z]{2}$/g) && player === channelName) return locale = message.replace('!wordle_locale_', '')
+   //channel author can change the number of guesses
+   if (message.match(/^\!wordle_guess_[0-9]+$/g) && player === channelName) return numberOfGuesses = parseInt(message.replace('!wordle_guess_', ''))
+   if (message.length != numberOfLetter) return //no need to check if the word is not the correct number of letter
    if (message.includes(' ')) return //no need to check if contains space
-   instance.checkGuess(message, player)
+   guessList.push({message: message, player: player})
 })
 
 const init = () => {
     loadLocale()
     .then(_ => {
-        console.log(locale)
-        console.log(dico.keys())
-        instance.initBoard({numberOfGuesses: currentNumberOfGuesses, numberOfLetter: currentNumberOfLetter, dico: dico[locale]})
+        instance.initBoard({numberOfGuesses: numberOfGuesses, numberOfLetter: numberOfLetter, dico: dico[locale]})
         say()
     })
 }
@@ -135,6 +136,13 @@ const loadLocale = async () => {
     return fetch(url)
         .then((response) => response.json())
         .then((json) => dico[locale] = json)
+}
+
+const checkGuess = async () => {
+    if (!guessList.length) return setTimeout(checkGuess, 10)
+    let entry = guessList.pop()
+    await instance.checkGuess(entry.message, entry.player)
+    setTimeout(checkGuess, 10)
 }
 },{"./tts":3,"./wordle":4,"toastify-js":2}],2:[function(require,module,exports){
 /*!

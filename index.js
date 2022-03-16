@@ -11,6 +11,7 @@ let numberOfLetter = parseInt("{{numberOfLetter}}") || 5
 let numberOfGuesses = 6
 let leaderboard = {}
 let channelName = ''
+let guessList = []
 
 function displayLeaderboard(winner) {
     let list = Object.entries(leaderboard)
@@ -76,6 +77,7 @@ window.addEventListener('onWidgetLoad', async (obj) => {
                 position: "center" // `left`, `center` or `right`
             }).showToast()
         })
+        setTimeout(checkGuess, 10)
     })
 })
 
@@ -98,7 +100,7 @@ window.addEventListener('onEventReceived', (obj) => {
    if (message.match(/^\!wordle_guess_[0-9]+$/g) && player === channelName) return numberOfGuesses = parseInt(message.replace('!wordle_guess_', ''))
    if (message.length != numberOfLetter) return //no need to check if the word is not the correct number of letter
    if (message.includes(' ')) return //no need to check if contains space
-   instance.checkGuess(message, player)
+   guessList.push({message: message, player: player})
 })
 
 const init = () => {
@@ -133,4 +135,11 @@ const loadLocale = async () => {
     return fetch(url)
         .then((response) => response.json())
         .then((json) => dico[locale] = json)
+}
+
+const checkGuess = async () => {
+    if (!guessList.length) return setTimeout(checkGuess, 10)
+    let entry = guessList.pop()
+    await instance.checkGuess(entry.message, entry.player)
+    setTimeout(checkGuess, 10)
 }
