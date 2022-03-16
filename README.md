@@ -28,3 +28,5 @@ As a streamer, you can use the following commands:
 * `!wordle_letter_[0-9]+` : Change to a specified number of letter (default 5) (example: !wordle_letter_6)
 * `!wordle_locale_[a-z]{2}}` : Change to a specified locale (default fr) (example: !wordle_locale_en)
 * `!wordle_podium` : Displays the leaderboard
+
+If a user try to use a command, he loses 10 points :)
