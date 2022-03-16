@@ -13,7 +13,7 @@ let leaderboard = {}
 let channelName = ''
 let guessList = []
 
-function displayLeaderboard(relaunch = true) {
+function displayLeaderboard(relaunch = true, specificTimeInSec = 0) {
     let list = Object.entries(leaderboard)
         .map(([player, score]) => {
             return {player: player, score: score }
@@ -24,11 +24,12 @@ function displayLeaderboard(relaunch = true) {
         .toString()
         .replaceAll(',', '')
 
-    let leaderText = `<h1>🏆 LEADERBOARD</h1><ol>${list}</ol><p>⏱️ Prochain mot dans 10s...</p>`
+    let leaderText = `<h1>🏆 LEADERBOARD</h1><ol>${list}</ol>`
+    leaderText += relaunch ? `<p>⏱️ Prochain mot dans ${specificTimeInSec || timeRelaunchInSec}s...</p>` : ''
 
     Toastify({
         text: leaderText,
-        duration: timeRelaunchInSec * 1000,
+        duration: (specificTimeInSec || timeRelaunchInSec) * 1000,
         newWindow: true,
         className: "toast-leaderboard",
         escapeMarkup: false,
@@ -95,7 +96,7 @@ window.addEventListener('onEventReceived', (obj) => {
    //channel author can ear the word with this command
    if (message === '!wordle_say' && player === channelName) return say()
    //channel author can display leaderboard
-   if (message === '!wordle_podium' && player === channelName) return displayLeaderboard(false)
+   if (message === '!wordle_podium' && player === channelName) return displayLeaderboard(false, 5)
    //channel author can change the current locale
    if (message.match(/^\!wordle_locale_[a-z]{2}$/g) && player === channelName) return locale = message.replace('!wordle_locale_', '')
    //channel author can change the number of guesses
