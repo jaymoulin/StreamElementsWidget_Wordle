@@ -24,5 +24,7 @@ As a streamer, you can use the following commands:
 * `!wordle_reset` : Reset leaderboard
 * `!wordle_next` : Pass to the next word
 * `!wordle_say` : Say the correct word
-* `!wordle_guess[0-9]+` : Change to a specified number of guess (default 6) (example: !wordle_guess3)
-* `!wordle_locale[a-z]{2}}` : Change to a specified locale (default fr) (example: !wordle_localeen)
+* `!wordle_guess_[0-9]+` : Change to a specified number of guess (default 6) (example: !wordle_guess_3)
+* `!wordle_letter_[0-9]+` : Change to a specified number of letter (default 5) (example: !wordle_letter_6)
+* `!wordle_locale_[a-z]{2}}` : Change to a specified locale (default fr) (example: !wordle_locale_en)
+* `!wordle_podium` : Displays the leaderboard

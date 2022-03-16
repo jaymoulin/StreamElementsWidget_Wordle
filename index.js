@@ -13,7 +13,7 @@ let leaderboard = {}
 let channelName = ''
 let guessList = []
 
-function displayLeaderboard(winner) {
+function displayLeaderboard(relaunch = true) {
     let list = Object.entries(leaderboard)
         .map(([player, score]) => {
             return {player: player, score: score }
@@ -34,7 +34,7 @@ function displayLeaderboard(winner) {
         escapeMarkup: false,
         gravity: "top", // `top` or `bottom`
         position: "center", // `left`, `center` or `right`
-        callback: () => init()
+        callback: () => relaunch && init()
     }).showToast()
 }
 
@@ -46,7 +46,7 @@ window.addEventListener('onWidgetLoad', async (obj) => {
         instance.getEventDispatcher().addEventListener('success', event => {
             leaderboard[event.detail.winner] = leaderboard[event.detail.winner] ? leaderboard[event.detail.winner] : 0
             leaderboard[event.detail.winner] += (numberOfGuesses - event.detail.tries)
-            displayLeaderboard(event.detail.winner)
+            displayLeaderboard()
             Toastify({
                 text: `Bravo 🏆 ${event.detail.winner}, le mot était '${instance.rightGuessString}'`,
                 duration: timeRelaunchInSec * 1000,
@@ -94,10 +94,14 @@ window.addEventListener('onEventReceived', (obj) => {
    if (message === '!wordle_reset' && player === channelName) return leaderboard = {}
    //channel author can ear the word with this command
    if (message === '!wordle_say' && player === channelName) return say()
+   //channel author can display leaderboard
+   if (message === '!wordle_podium' && player === channelName) return displayLeaderboard(false)
    //channel author can change the current locale
    if (message.match(/^\!wordle_locale_[a-z]{2}$/g) && player === channelName) return locale = message.replace('!wordle_locale_', '')
    //channel author can change the number of guesses
    if (message.match(/^\!wordle_guess_[0-9]+$/g) && player === channelName) return numberOfGuesses = parseInt(message.replace('!wordle_guess_', ''))
+   //channel author can change the number of letter
+   if (message.match(/^\!wordle_letter_[0-9]+$/g) && player === channelName) return numberOfLetter = parseInt(message.replace('!wordle_letter_', ''))
    if (message.length != numberOfLetter) return //no need to check if the word is not the correct number of letter
    if (message.includes(' ')) return //no need to check if contains space
    guessList.push({message: message, player: player})
